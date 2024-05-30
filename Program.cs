@@ -48,6 +48,55 @@ int уSwap = 10;
 Swap(ref хSwap, ref уSwap);
 Swap<int>(ref хSwap, ref уSwap);
 
+Player player = new Player();
+IWeapon[] inventory = { new Gun(), new LaserGun(), new Knife() };
+foreach (var item in inventory)
+{
+    player.Fire(item);
+    Console.WriteLine();
+}
+player.Throw(new Knife());
+
+int Square(int x) => x * x; //Какой-то метод
+int Cube(int x) => x * x * x; //Какой-то метод
+int[] values = { 1, 2, 3 };
+Transform(values, Square);
+foreach (int i in values)
+    Console.WriteLine(i + " ");
+void Transform(int[] values, Transformer t)
+{
+    for (int i = 0; i < values.Length; i++)
+        values[i] = t(values[i]);
+}
+Transformer t = Square; //Создание экземпляра делегата
+int answerSquare = t(3); //Вызов экземпляра делегата по аналогии с вызовом метода
+
+int factor = 2;
+Func<int, int> multiplierFunc = n => n * factor; //Лямбда-выражение, захватывающее внешнюю переменную
+static Func<int> Natural() //Делегат Func
+{
+    int seed = 0;
+    return () => seed++; //Лямбда-выражение, возвращающее замыкание
+}
+Func<int> natural = Natural(); //Расширение времени жизни переменной seed
+Console.WriteLine(natural()); //0
+Console.WriteLine(natural()); //1
+Console.WriteLine(natural()); //2
+Console.WriteLine(natural()); //3
+
+Func<int, int> multiplierFuncStatic = static n => n * 2; //Статическое лямбда-выражение
+
+int? aTypeWithNull = null; //Тип значения, допускающий null
+int bTypeWithNull = 2; //Тип значения, НЕ допускающий null
+int? cTypeWithNull = aTypeWithNull + bTypeWithNull; //Смешивание типов, допускающих и не допускающих null
+int? dTypeWithNull = aTypeWithNull ?? 5; //Операция объединения с null
+
+var almostProgrammer = new { Name = "Sasha", Age = 26 }; //Анонимный тип
+
+dynamic dynamicX = MultiplyBy12(12); //Динамический тип - компилятор выполняет динамическое связывание во время выполнения
+var dynamicY = dynamicX.ToString(); //Компилятор не знает, существует ли метод ToString()
+
+
 
 
 
@@ -146,4 +195,93 @@ public class Stack<T> //Класс обобщённого типа <T>
     T[] data = new T[100];
     public void Push(T obj) => data[position++] = obj;
     public T Pop() => data[--position];
+}
+
+interface IWeapon //Интерфейс. Класс только с методами или свойствами без реализации
+{
+    public void Fire();
+}
+
+interface IThrowingWeapon : IWeapon //Наследование интерфейса
+{
+    public void Throw();
+}
+
+interface IInterface : IThrowingWeapon, IWeapon //Множественное наследование интерфейса
+{
+
+}
+
+class Gun : IWeapon //Реализация интерфейса (грубо: наследование интерфейса)
+{
+    public void Fire()
+    {
+        Console.WriteLine($"{GetType().Name}: Выстрел!");
+    }
+}
+
+class LaserGun : IWeapon //Реализация интерфейса (грубо: наследование интерфейса)
+{
+    public void Fire()
+    {
+        Console.WriteLine($"{GetType().Name}: Пиу!");
+    }
+}
+
+class Knife : IThrowingWeapon
+{
+    public void Fire()
+    {
+        Console.WriteLine($"{GetType().Name}: Ударил!");
+    }
+
+    public void Throw()
+    {
+        Console.WriteLine($"{GetType().Name}: Метнул!");
+    }
+}
+
+class Player
+{
+    public void Fire(IWeapon weapon)
+    {
+        weapon.Fire();
+    }
+
+    public void Throw(IThrowingWeapon throwingWeapon)
+    {
+        throwingWeapon.Throw();
+    }
+}
+
+delegate int Transformer(int x); //Делегат
+public delegate void PriceCnahgedHandler(decimal oldPrice, decimal newPrice); //Определение делегата
+public class Stock
+{
+    string symbol;
+    decimal price;
+    public Stock(string symbol) => this.symbol = symbol;
+    public event PriceCnahgedHandler PriceCnahged; //Объявление события
+    public decimal Price
+    {
+        get => price;
+        set
+        {
+            if (price == value) return; //Выйти, если ничего не изменилось
+            decimal oldPrice = price;
+            price = value;
+            if (PriceCnahged != null) PriceCnahged(oldPrice, price); //Запустить событие, если список вызова НЕ пуст
+        }
+    }
+}
+
+public struct Note //Структура
+{
+    int value;
+    public Note(int semitonesFromA) { value = semitonesFromA; }
+    public static Note operator +(Note x, int semitones) //Перегрузка операции + через ключевое слово operator
+    {
+        return new Note(x.value + semitones);
+    }
+    public static Note operator -(Note x, int semitones) => new Note(x.value - semitones); //Перегрузка операции -, сжатая до выражения
 }
