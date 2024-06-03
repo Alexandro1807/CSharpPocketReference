@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 Console.WriteLine(MultiplyBy12(30));
 
 int MultiplyBy12(int mult)
@@ -96,8 +97,10 @@ var almostProgrammer = new { Name = "Sasha", Age = 26 }; //Анонимный т
 dynamic dynamicX = MultiplyBy12(12); //Динамический тип - компилятор выполняет динамическое связывание во время выполнения
 var dynamicY = dynamicX.ToString(); //Компилятор не знает, существует ли метод ToString()
 
-
-
+string[] LINQStrings = { "Проверка", "Слово", "Рак", "Торт", "Проверки" };
+IEnumerable<string> LINQStringsWhere = LINQStrings.Where(n => n.Length >= 4); //Язык запросов LINQ
+var LINQStringsQuery = from n in LINQStrings where n.Length >= 4 select n; //Синтаксис запроса
+int LINQMatch = (from n in LINQStrings where n.Contains("о") select n).Count(); //Запрос со смешанным синтаксисом
 
 
 
