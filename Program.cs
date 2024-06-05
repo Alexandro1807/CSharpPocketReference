@@ -288,3 +288,21 @@ public struct Note //Структура
     }
     public static Note operator -(Note x, int semitones) => new Note(x.value - semitones); //Перегрузка операции -, сжатая до выражения
 }
+
+class Finalizator : IDisposable //Класс с финализатором по освобождению ресурсов
+{
+    public void Dispose()
+    {
+        Dispose(true);
+        GC.SuppressFinalize(this); //Не запускать финализатор в следующий цикл работы GC - Garbage Collector (сборщик мусора)
+    }
+    protected virtual void Dispose(bool disposing)
+    {
+        if (disposing)
+        {
+            //Например, вызвать Dispose на других объектах, которыми владеет данный экземпляр. Можно ссылаться на другие финализируемые объекты
+        }
+        //Например, освободить неуправляемые ресурсы, которыми владеет только этот объект
+    }
+    ~Finalizator() => Dispose(false);
+}
