@@ -306,3 +306,52 @@ class Finalizator : IDisposable //Класс с финализатором по 
     }
     ~Finalizator() => Dispose(false);
 }
+
+class ThreadSafeEducation //Класс для темы "Параллелизм": "Блокировка и безопасность потоков"
+{
+    static bool _done; //Разделяемое поле
+    static readonly object _locker = new object();
+    public bool IsCancellationRequested { get; private set; } //Свойство - запрос отмены параллельной операции после её запуска
+    public void Cancel() { IsCancellationRequested = true; } //Метод установки свойства в true
+    public void ThrowlfCancellationRequested()
+    {
+        if (IsCancellationRequested) throw new OperationCanceledException(); //Отмена параллельной операции
+    }
+
+    static void Main()
+    {
+        new Thread(Go).Start();
+        Go();
+        Thread t1 = new Thread(() => Go1("From t1")); //Передача аргумента (данных) потоку
+        void Go1(string param1) => Console.WriteLine(param1);
+    }
+    static void Go() //Безопасный в отношении потоков код
+    {
+        lock (_locker) //Монопольная блокировка на период чтения и записи разделяемого поля
+        {
+            if (!_done) { Console.WriteLine("Done!"); _done = true; }
+        }
+    }
+    Task<int> GetPrimesCountAsync(int start, int count) //Асинхронный метод, который вычисляет и подсчитывает простые числа
+    {
+        return Task.Run(() =>
+            ParallelEnumerable.Range(start, count).Count(n =>
+                Enumerable.Range(2, (int)Math.Sqrt(n) - 1).All(i => n % i > 0)));
+    }
+    async void DisplayPrimesCount() //Асинхронная функция - модификатор async позволяет трактовать "await" как ключевое слово
+    {
+        int result = await GetPrimesCountAsync(2, 1000000); //Вызов асинхронного метода с помощью ключевого слова await
+        Console.WriteLine(result);
+        await foreach (var number in RangeAsync(0, 10, 500)) //Потребление асинхронного потока
+            Console.WriteLine(number);
+    }
+
+    async IAsyncEnumerable<int> RangeAsync(int start, int count, int delay) //Асинхронный поток
+    {
+        for (int i = start; i < start + count; i++)
+        {
+            await Task.Delay(delay);
+            yield return i;
+        }
+    }
+}
