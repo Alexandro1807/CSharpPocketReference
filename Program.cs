@@ -102,12 +102,16 @@ IEnumerable<string> LINQStringsWhere = LINQStrings.Where(n => n.Length >= 4); //
 var LINQStringsQuery = from n in LINQStrings where n.Length >= 4 select n; //Синтаксис запроса
 int LINQMatch = (from n in LINQStrings where n.Contains("о") select n).Count(); //Запрос со смешанным синтаксисом
 
+var HTTPhandler = new HttpClientHandler { UseProxy = false }; //Создание помощника для HttpClient
+var HTTPclient = new HttpClient(handler); //Создание HTTP клиента (желательно один клиент на все операции)
+var task1 = client.GetStringAsync("http://www.ya.ru"); //Загрузка страницы (асинхронно)
+Console.WriteLine(await task1); //Вывод результата в консоль
 
 
 
 
 //Пауза перед завершением консоли
-Thread.Sleep(3 * 1000);
+Thread.Sleep(60 * 1000);
 
 
 
