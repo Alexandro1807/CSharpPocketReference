@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Linq;
+using System.Net;
+using System.Net.Http;
 Console.WriteLine(MultiplyBy12(30));
 
 int MultiplyBy12(int mult)
@@ -102,15 +104,20 @@ IEnumerable<string> LINQStringsWhere = LINQStrings.Where(n => n.Length >= 4); //
 var LINQStringsQuery = from n in LINQStrings where n.Length >= 4 select n; //Синтаксис запроса
 int LINQMatch = (from n in LINQStrings where n.Contains("о") select n).Count(); //Запрос со смешанным синтаксисом
 
-var HTTPhandler = new HttpClientHandler { UseProxy = false }; //Создание помощника для HttpClient
-var HTTPclient = new HttpClient(handler); //Создание HTTP клиента (желательно один клиент на все операции)
-var task1 = client.GetStringAsync("http://www.ya.ru"); //Загрузка страницы (асинхронно)
-Console.WriteLine(await task1); //Вывод результата в консоль
-
-
+// WebProxy webProxy = new WebProxy("127.0.0.1", 80); //Создание экземпляра определённого прокси-сервера
+var HTTPhandler = new HttpClientHandler { UseProxy = false /*Proxy = webProxy*/ }; //Создание помощника для HttpClient
+var HTTPclient = new HttpClient(HTTPhandler); //Создание HTTP клиента (желательно один клиент на все операции)
+string URI = "http://www.google.com"; //Строка с URI веб-ресурса
+Task<string>? task1 = HTTPclient.GetStringAsync(URI); //Загрузка страницы (асинхронно) в задачу
+HttpResponseMessage response = await HTTPclient.GetAsync(URI); //Ответ от сервера
+WebClient webClient = new WebClient { Proxy = null }; //Создание WEB клиента (желательно разные клиенты на разные операции)
+webClient.QueryString.Add("q", "Что такое доброта"); //Добавление первого заголовка
+webClient.QueryString.Add("hl", "en"); //Добавление второго заголовка
+webClient.DownloadFile("http://www.google.com/search", @"D:\Downloads\resultsCheck.html"); //Скачивание результирующей странички HTML
 
 
 //Пауза перед завершением консоли
+Console.WriteLine("Программа завершена! Ждите завершения.");
 Thread.Sleep(60 * 1000);
 
 
