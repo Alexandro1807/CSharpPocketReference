@@ -2,6 +2,9 @@
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Reflection;
+using static System.Net.Mime.MediaTypeNames;
+using System.Reflection.Emit;
 Console.WriteLine(MultiplyBy12(30));
 
 int MultiplyBy12(int mult)
@@ -114,6 +117,27 @@ WebClient webClient = new WebClient { Proxy = null }; //Создание WEB к�
 webClient.QueryString.Add("q", "Что такое доброта"); //Добавление первого заголовка
 webClient.QueryString.Add("hl", "en"); //Добавление второго заголовка
 webClient.DownloadFile("http://www.google.com/search", @"D:\Downloads\resultsCheck.html"); //Скачивание результирующей странички HTML
+
+Type type1 = DateTime.Now.GetType(); //Экземпляр Type, полученный во время выполнения
+Type type2 = typeof(DateTime); //Экземпляр Type, полученный на этапе компиляции
+MemberInfo[] memberInfos = typeof(AllClassElementsExample).GetMembers(); //Получение всех членов класса AllClassElementsExample
+foreach (MemberInfo n in memberInfos) Console.WriteLine(n); //Просмотр всех членов класса AllClassElementsExample
+
+string sStaticRelation = "Hello"; int lengthStaticRelation = sStaticRelation.Length; //Обычное статическое связывание
+//Динамическое позднее связывание
+object sLateRelation = "Hello";
+PropertyInfo propLateRelation = sStaticRelation.GetType().GetProperty("Length");
+int lengthLateRelation = (int)propLateRelation.GetValue(s, null);
+
+var dynMeth = new DynamicMethod("Foo", null, null, typeof(AllClassElementsExample)); //Создание экземпляра динамического метода Foo
+ILGenerator gen = dynMeth.GetILGenerator(); //Получить генератор промежуточного кода IL
+gen.EmitWriteLine("Hello world");
+gen.Emit(OpCodes.Ret); //"Возврат"
+dynMeth.Invoke(null, null); //Вызвать динамический метод
+
+
+
+
 
 
 //Пауза перед завершением консоли
