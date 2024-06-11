@@ -135,10 +135,35 @@ gen.EmitWriteLine("Hello world");
 gen.Emit(OpCodes.Ret); //"Возврат"
 dynMeth.Invoke(null, null); //Вызвать динамический метод
 
+IEnumerable<int> numbersPLINQ = Enumerable.Range(3, 100000 - 3); //Набор чисел
+var parallelQueryPLINQ = //Запрос LINQ, оформленный в стилистике SQL
+from n in numbersPLINQ.AsParallel() //Преобразование запроса в PLINQ (Parallel LINQ)
+where Enumerable.Range(2, (int)Math.Sqrt(n)).All(i => n % i > 0)
+select n;
+int[] primesPLINQ = parallelQueryPLINQ.ToArray();
 
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//Прочая информация, не относящаяся к учебнику
+for (int xParam = 0; xParam <= 9; xParam++)
+    for (int yParam = 0; yParam <= 9; yParam++)
+        if (xParam * yParam == 10 * xParam + yParam) Console.WriteLine("Число " + xParam + yParam);
+Console.WriteLine("Задача решена!");
 
 //Пауза перед завершением консоли
 Console.WriteLine("Программа завершена! Ждите завершения.");
@@ -388,5 +413,37 @@ class ThreadSafeEducation //Класс для темы "Параллелизм":
             await Task.Delay(delay);
             yield return i;
         }
+    }
+}
+
+class ThreadSafeWithLock //Класс, реализующий монопольную блокировку с помощью lock
+{
+    static readonly object _locker = new object(); //Блокируемый объект синхронизации
+    static int _val1 = 1, _val2 = 1;
+    static void Go()
+    {
+        lock (_locker) //Непосредственно блокировка с помощью lock (сокращение для Monitor.Enter(_locker, ref lockTaken) и Monitor.Exit(_locker))
+        {
+            if (_val2 != 0) Console.WriteLine(_val1 / _val2); //Риск возникновения исключения DividedByZeroException
+            _val2 = 0; //Причина появления риска
+        }
+    }
+}
+
+class TheSemaphoreSlimExample //Класс, реализующий немонопольную блокировку с помощью Semaphore
+{
+    static SemaphoreSlim _sem = new SemaphoreSlim(3); //Вместительность семафора равна 3
+    static void Main()
+    {
+        for (int i = 1; i <= 10; i++) new Thread(Enter).Start(i);
+    }
+    static void Enter(object id)
+    {
+        Console.WriteLine(string.Format("ID под номером {0} желает занять одну единицу ёмкости семафора.", id));
+        _sem.Wait(); //Добавление объекта в семафор
+        Console.WriteLine("Объект " + id + " занял семафор!");
+        Thread.Sleep(new Random().Next(5000)); //Имитация бурной деятельности
+        Console.WriteLine("Объект " + id + " покидает семафор!");
+        _sem.Release(); //Выгрузка объекта из семафора
     }
 }
