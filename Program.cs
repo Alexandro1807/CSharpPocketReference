@@ -5,6 +5,7 @@ using System.Net.Http;
 using System.Reflection;
 using static System.Net.Mime.MediaTypeNames;
 using System.Reflection.Emit;
+using System.Text.RegularExpressions;
 Console.WriteLine(MultiplyBy12(30));
 
 int MultiplyBy12(int mult)
@@ -142,10 +143,12 @@ where Enumerable.Range(2, (int)Math.Sqrt(n)).All(i => n % i > 0)
 select n;
 int[] primesPLINQ = parallelQueryPLINQ.ToArray();
 
-
-
-
-
+//Регулярные выражения
+foreach (Match m in Regex.Matches("Color colour colours colouure Check COLOR", @"colou?rs?")) //Match - поиск соответствия. ? - квантификатор (символ перед ? должен встречаться от 0 до 1 раза)
+    Console.WriteLine(m);
+Console.WriteLine(Regex.IsMatch("?Саша ?Саня Александр", "\\?Са(ша|ня)")); //Проверка на успех метода Match - вывод bool. Операция | является "Перестановкой" - даёт альтернативы. \" - отмена символа "
+Regex TheFirstRegularExpression = new Regex(@"Дома?", RegexOptions.Compiled);
+Console.WriteLine(TheFirstRegularExpression.Match("Один дом стоит у дома"));
 
 
 
