@@ -450,3 +450,24 @@ class TheSemaphoreSlimExample //Класс, реализующий немоно�
         _sem.Release(); //Выгрузка объекта из семафора
     }
 }
+
+class UserGetHashCode
+{
+    public string Name { get; set; }
+    public int Age { get; set; }
+    public override bool Equals(object? obj)
+    {
+        return this.Equals(obj as UserGetHashCode);
+    }
+
+    public override int GetHashCode()
+    {
+        return HashCode.Combine(this.Name, this.Age);
+    }
+
+    private bool Equals(UserGetHashCode other)
+    {
+        if (other == null) return false;
+        return object.Equals(this.Name, other.Name) && this.Age == other.Age;
+    }
+}
